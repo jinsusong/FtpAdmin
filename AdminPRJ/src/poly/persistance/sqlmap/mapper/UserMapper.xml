@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="poly.persistance.mapper.UserMapper">
+	
+	<!--  등록 쿼리 -->
+	<select id="getUserinfo" parameterType="UserDTO" resultType="UserDTO">
+		SELECT 
+			EMAIL
+			,PWD
+			,NAME
+			
+		FROM USER_INFO
+		WHERE EMAIL = #{email} and PWD = #{pwd}
+	
+	</select>
+	
+	<!-- ftphistory 전체 리스트 개수 -->
+	<select id="gettotalCount" resultType="integer">
+		SELECT IFNULL (COUNT(FTP_SEQ),0)
+		FROM FTP_HISTORY
+	</select>
+	
+	<select id="getEnableList" parameterType="map" resultType="FtphistoryDTO">
+		SELECT 
+			FTP_SEQ as ftp_seq
+			,FTP_SEND_DATE as ftp_send_date
+			,FTP_STATUS as ftp_status
+			,FTP_SEND_IP as ftp_ip
+			,FTP_HOSTNAME as ftp_hostname
+			,CHG_DT as chg_dt
+		FROM 
+			FTP_HISTORY
+		ORDER BY FTP_SEQ DESC
+		LIMIT #{startlist},#{listsize}
+	</select>
+	
+	<select id="gethistoryInfo" parameterType="FtphistoryDTO" resultType="FtphistoryDTO">
+		SELECT
+			FTP_SEQ as ftp_seq
+			,FTP_SEND_DATE as ftp_send_date
+			,FTP_STATUS as ftp_status
+			,FTP_SEND_IP as ftp_ip
+			,FTP_HOSTNAME as ftp_hostname
+			,CHG_DT as chg_dt
+			,FTP_FILENAME as ftp_filename
+		FROM 
+			FTP_HISTORY
+		WHERE
+			FTP_SEQ = #{ftp_seq}
+	
+	</select>
+	
+</mapper>

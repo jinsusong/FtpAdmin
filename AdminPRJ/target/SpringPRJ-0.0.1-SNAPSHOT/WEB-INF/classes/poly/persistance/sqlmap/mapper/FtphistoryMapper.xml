@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="poly.persistance.mapper.FtphistoryMapper">
+	
+	<!--  등록 쿼리 -->
+	<insert id="insertHistory" parameterType="FtphistoryDTO">
+		INSERT INTO FTP_HISTORY
+			(
+				FTP_SEND_DATE,
+				FTP_STATUS,
+				FTP_SEND_IP,
+				FTP_HOSTNAME,
+		      	REG_DT,
+		      	CHG_DT
+			)
+		VALUES(
+			date_format(NOW(),'%Y-%m-%d %T'),
+			"P",
+			#{p_ip}, 
+			#{p_host},
+			date_format(NOW(),'%Y-%m-%d %T'),
+			date_format(NOW(),'%Y-%m-%d %T')
+		)
+		
+		<selectKey resultType="string" keyProperty="ftp_seq" order="AFTER">
+		SELECT last_insert_id() as ftp_seq FROM DUAL;
+		</selectKey>
+		
+	</insert>
+	
+	<!-- 접속 반환값을 uploadPath:등록된 시간, SEQ select하기 -->
+	<select id="getHistory" parameterType="FtphistoryDTO" resultType="FtphistoryDTO">
+		SELECT 
+			DATE_FORMAT(FTP_SEND_DATE, '%Y-%m-%d') as ftp_send_date,
+			FTP_SEQ as ftp_seq
+		FROM FTP_HISTORY
+		WHERE FTP_SEQ=#{ftp_seq}
+	</select>
+	
+	<!-- ftp 전송 완료 update history -->
+	<update id="updateHistory"  parameterType="FtphistoryDTO">
+		UPDATE 
+			FTP_HISTORY
+		SET
+			FTP_STATUS = "E",
+			CHG_DT = NOW()
+		WHERE
+			FTP_SEQ = #{ftp_seq}
+	</update>
+			
+</mapper>
