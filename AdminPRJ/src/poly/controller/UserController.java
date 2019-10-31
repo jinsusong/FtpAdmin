@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.net.URLCodec;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +29,7 @@ import poly.dto.BoardDTO;
 import poly.dto.FtphistoryDTO;
 import poly.service.IUserService;
 import poly.service.INoticeService;
+import poly.util.AES256Util;
 import poly.util.CmmUtil;
 import poly.util.FtpDownload;
 import poly.util.FtpUploader;
@@ -58,14 +60,23 @@ public class UserController {
 			throws Exception {
 		log.info(this.getClass().getName() + ".admin/home start!");
 		String email = CmmUtil.nvl(req.getParameter("email"));
-		String pwd = CmmUtil.nvl(req.getParameter("pwd"));
+
+		/* aes */
+		String key = "aes256-quiztok-key";
+		AES256Util aes256 = new AES256Util(key);
+		URLCodec codec = new URLCodec();
+		
+		String encPwd = codec.encode(aes256.aesEncode(CmmUtil.nvl(req.getParameter("pwd"))));
+		/* String decLoginidx = aes256.aesDecode(codec.decode(encPwd)); */
+		
+		
+		/* aes */
 
 		UserDTO uDTO = new UserDTO();
 		uDTO.setEmail(email);
-		uDTO.setPwd(pwd);
+		uDTO.setPwd(encPwd);
 
 		email = "";
-		pwd = "";
 
 		String url = "";
 		String msg = "";
@@ -205,7 +216,9 @@ public class UserController {
 		String seq = CmmUtil.nvl(req.getParameter("seq"));
 		String sendDt = CmmUtil.nvl(req.getParameter("sendDt"));
 		String status = CmmUtil.nvl(req.getParameter("status"));
-		String filename = CmmUtil.nvl(req.getParameter("filename"));
+		String filename = CmmUtil.replace2(CmmUtil.nvl(req.getParameter("filename")));
+		
+		/* /2019/10/17/실습장비 지원신청서& #40;양식& #41;_2019년도.xlsx */
 		
 		log.info("seq : " +  seq);
 		log.info("sendDt : " +  sendDt);
